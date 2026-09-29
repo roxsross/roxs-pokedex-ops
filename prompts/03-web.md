@@ -45,7 +45,7 @@ Servidor web:
 Salida: web/index.html, web/styles.css, web/app.js, web/nginx.conf y
 web/Dockerfile.
 Formato: un bloque de código por archivo, con la ruta como título justo antes
-del bloque (por ejemplo: ### api/server.js). Nunca pongas la ruta como
+del bloque (por ejemplo: ### web/index.html). Nunca pongas la ruta como
 comentario dentro del archivo: en JSON y en el Dockerfile rompe el build.
 Sin explicaciones entre los archivos.
 ```
