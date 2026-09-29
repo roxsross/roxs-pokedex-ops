@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>¿Quién es ese Pokémon? · Pokédex Ops</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="barra">
+    <div class="marca">
+      <span class="pokebola" aria-hidden="true"></span>
+      <span>Pokédex <b>Ops</b></span>
+    </div>
+    <div class="salud" title="Estado de la API y de Valkey">
+      <span class="punto" id="salud-punto"></span>
+      <span id="salud-texto">Conectando...</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Pantalla 1: inicio -->
+    <section id="pantalla-inicio" class="pantalla activa">
+      <div class="heroe">
+        <p class="etiqueta">Juego de siluetas · <span id="info-partidas">Pokédex Ops</span></p>
+        <h1>¿Quién es ese <span>Pokémon</span>?</h1>
+        <p class="bajada">
+          Adiviná 10 Pokémon por su silueta. Cada acierto suma 100 puntos
+          y las rachas suman bonus. ¿Dudás? Pedí una pista con los tipos por 30 puntos.
+          Tu mejor partida queda en el ranking.
+        </p>
+        <form id="form-inicio" class="form-inicio">
+          <input id="jugador" aria-label="Nombre de entrenador/a" maxlength="20" placeholder="Tu nombre de entrenador/a" autocomplete="off" required>
+          <select id="generacion" aria-label="Generación">
+            <option value="1">Gen 1 · Kanto</option>
+          </select>
+          <button type="submit" id="boton-jugar">Jugar</button>
+        </form>
+        <p class="error" id="error-inicio" role="alert"></p>
+
+        <div id="continuar" class="continuar" hidden>
+          <span id="continuar-texto"></span>
+          <button type="button" id="boton-continuar">Continuar</button>
+          <button type="button" id="boton-descartar" class="secundario">Descartar</button>
+        </div>
+      </div>
+
+      <div class="tableros">
+        <article class="tablero">
+          <h2>🏆 Ranking</h2>
+          <ol id="ranking" class="lista-ranking"></ol>
+        </article>
+        <article class="tablero">
+          <h2>🕹️ Últimas partidas</h2>
+          <ul id="historial" class="lista-historial"></ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- Pantalla 2: juego -->
+    <section id="pantalla-juego" class="pantalla">
+      <div class="marcador">
+        <div><span>Entrenador/a</span><strong id="m-jugador">-</strong></div>
+        <div><span>Ronda</span><strong id="m-ronda">-</strong></div>
+        <div><span>Puntaje</span><strong id="m-puntaje">0</strong></div>
+        <div><span>Racha</span><strong id="m-racha">0</strong></div>
+      </div>
+      <div class="progreso"><div id="progreso-barra"></div></div>
+
+      <div class="escenario">
+        <div class="rayos" aria-hidden="true"></div>
+        <img id="silueta" class="silueta" alt="Silueta del Pokémon a adivinar">
+        <p id="cargando" class="cargando">Buscando un Pokémon...</p>
+      </div>
+
+      <div class="revelacion" aria-live="polite">
+        <h2 id="resultado" class="resultado"></h2>
+        <p id="ficha" class="ficha"></p>
+        <div id="tipos" class="tipos"></div>
+      </div>
+
+      <div id="opciones" class="opciones"></div>
+      <button id="pista" class="pista secundario" hidden>💡 Pista: ver tipos (−30)</button>
+      <p class="ayuda">Tip: respondé con <kbd>1</kbd> a <kbd>4</kbd>, pedí pista con <kbd>P</kbd> y avanzá con <kbd>Enter</kbd>.</p>
+      <button id="siguiente" class="siguiente" hidden>Siguiente</button>
+      <p class="error" id="error-juego" role="alert"></p>
+    </section>
+
+    <!-- Pantalla 3: fin -->
+    <section id="pantalla-fin" class="pantalla">
+      <div class="final">
+        <p class="etiqueta">Partida terminada</p>
+        <p class="puntaje-final" id="puntaje-final">0</p>
+        <p class="aciertos-final" id="aciertos-final"></p>
+        <p class="mensaje-final" id="mensaje-final"></p>
+        <ul id="resumen" class="resumen"></ul>
+        <button id="otra-vez">Jugar otra vez</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Datos e imágenes de <a href="https://pokeapi.co" target="_blank" rel="noopener">PokeAPI</a>
+    · Proyecto educativo · Hecho por <b>Roxs</b> 🔥
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
