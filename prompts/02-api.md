@@ -25,7 +25,10 @@ Contrato (respetá nombres de rutas, campos y claves exactamente):
   récord del jugador, y agrega un resumen a la lista "historial" (máximo 10).
 - GET /api/ranking: top 10 del sorted set, [{ jugador, puntaje }].
 - GET /api/historial: la lista "historial", [{ jugador, puntaje, aciertos, total, fecha }].
-- Partida inexistente: 404.
+- Partida inexistente o expirada: 404. Un id que no tiene formato UUID: 404,
+  sin consultar Valkey. Pedir una ronda de una partida terminada: 409.
+- Cualquier otra ruta bajo /api: 404 con { error }. Un cuerpo que no es JSON
+  válido: 400 con { error }.
 
 PokeAPI y caché:
 - Nombres: GET /pokemon?limit=151, cacheado en "pokeapi:lista:151".
@@ -41,6 +44,8 @@ Configuración y resiliencia:
 - Listener de "error" en el cliente, disableOfflineQueue: true, y 503 si el
   cliente no está listo. La app arranca aunque Valkey no esté disponible.
 - Manejo de errores centralizado en un middleware de Express.
+- Apagado ordenado: al recibir SIGTERM o SIGINT, dejar de aceptar conexiones,
+  cerrar el cliente de Valkey y terminar el proceso.
 
 Restricciones: solo express y redis. Separá el código en módulos (conexión a
 Valkey, acceso a PokeAPI, lógica del juego, rutas HTTP).
@@ -48,4 +53,5 @@ Valkey, acceso a PokeAPI, lógica del juego, rutas HTTP).
 Salida: package.json, cada archivo .js, un Dockerfile (node:24-alpine, usuario
 node, HEALTHCHECK contra /health con wget) y un .dockerignore.
 Sin explicaciones entre los archivos.
+No incluyas el nombre del archivo como comentario dentro de los archivos.
 ```

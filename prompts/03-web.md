@@ -33,5 +33,16 @@ Requisitos:
 - Estilo: modo oscuro, acentos rojo y amarillo, responsive.
 - Mostrá los errores de la API en pantalla.
 
-Salida: index.html, styles.css y app.js. Sin explicaciones entre los archivos.
+Servidor web:
+- nginx.conf: escucha en el 8080, sirve los archivos estáticos y reenvía
+  /api/ y /health a http://api:3000. Usá el DNS de Docker (resolver 127.0.0.11)
+  y una variable en proxy_pass, para que nginx siga encontrando a la API si su
+  contenedor se recrea.
+- Dockerfile: imagen nginxinc/nginx-unprivileged:1.27-alpine y HEALTHCHECK con
+  wget contra http://127.0.0.1:8080/ (no localhost: resuelve primero a IPv6 y
+  nginx escucha en IPv4).
+
+Salida: index.html, styles.css, app.js, nginx.conf y Dockerfile.
+Sin explicaciones entre los archivos.
+No incluyas el nombre del archivo como comentario dentro de los archivos.
 ```
