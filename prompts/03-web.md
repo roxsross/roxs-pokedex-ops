@@ -42,7 +42,10 @@ Servidor web:
   wget contra http://127.0.0.1:8080/ (no localhost: resuelve primero a IPv6 y
   nginx escucha en IPv4).
 
-Salida: index.html, styles.css, app.js, nginx.conf y Dockerfile.
+Salida: web/index.html, web/styles.css, web/app.js, web/nginx.conf y
+web/Dockerfile.
+Formato: un bloque de código por archivo, con la ruta como título justo antes
+del bloque (por ejemplo: ### api/server.js). Nunca pongas la ruta como
+comentario dentro del archivo: en JSON y en el Dockerfile rompe el build.
 Sin explicaciones entre los archivos.
-No incluyas el nombre del archivo como comentario dentro de los archivos.
 ```

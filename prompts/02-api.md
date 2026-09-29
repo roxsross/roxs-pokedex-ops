@@ -47,11 +47,15 @@ Configuración y resiliencia:
 - Apagado ordenado: al recibir SIGTERM o SIGINT, dejar de aceptar conexiones,
   cerrar el cliente de Valkey y terminar el proceso.
 
-Restricciones: solo express y redis. Separá el código en módulos (conexión a
-Valkey, acceso a PokeAPI, lógica del juego, rutas HTTP).
+Restricciones: solo express y redis. Separá el código en estos módulos, todos
+en la raíz de api/: valkey.js (conexión), pokeapi.js (acceso a PokeAPI con
+caché), juego.js (lógica del juego) y server.js (rutas HTTP y arranque).
 
-Salida: package.json, cada archivo .js, un Dockerfile (node:24-alpine, usuario
-node, HEALTHCHECK contra /health con wget) y un .dockerignore.
+Salida: api/package.json, api/valkey.js, api/pokeapi.js, api/juego.js,
+api/server.js, api/Dockerfile (node:24-alpine, usuario node, CMD con server.js,
+HEALTHCHECK contra /health con wget) y api/.dockerignore.
+Formato: un bloque de código por archivo, con la ruta como título justo antes
+del bloque (por ejemplo: ### api/server.js). Nunca pongas la ruta como
+comentario dentro del archivo: en JSON y en el Dockerfile rompe el build.
 Sin explicaciones entre los archivos.
-No incluyas el nombre del archivo como comentario dentro de los archivos.
 ```
