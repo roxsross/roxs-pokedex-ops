@@ -70,6 +70,12 @@ docker compose up -d --build
 - Al final ves el resumen de los 10 Pokémon y tu mejor puntaje queda en el **ranking**.
 - Atajos: <kbd>1</kbd>–<kbd>4</kbd> para responder, <kbd>P</kbd> para la pista y <kbd>Enter</kbd> para avanzar.
 
+| Inicio | Silueta con pista |
+|---|---|
+| ![Pantalla de inicio con el ranking y las últimas partidas](docs/img/inicio.png) | ![Silueta de un Pokémon con la pista de tipos](docs/img/silueta.png) |
+| **Revelado** | **Resumen final** |
+| ![El Pokémon revelado con su número, altura, peso y tipos](docs/img/revelado.png) | ![Pantalla final con el puntaje y los 10 Pokémon de la partida](docs/img/final.png) |
+
 ### La prueba de la API
 
 Con el stack levantado, dejá que un bot juegue una partida completa:
@@ -90,14 +96,52 @@ Vas a usar esta misma prueba para validar **tu** versión.
 
 ## Arquitectura
 
-```text
-┌─────────────────────────────── Docker Compose ───────────────────────────────┐
-│                                                                              │
-│   web (nginx :8080) ──/api──▶ api (Node.js :3000) ──▶ valkey (:6379)         │
-│          ▲                           │                   └─ volumen          │
-└──────────┼───────────────────────────┼───────────────────────────────────────┘
-           │                           ▼
-       Navegador                 PokeAPI (con caché en Valkey)
+```mermaid
+flowchart LR
+    usuario(["🧑 Navegador"])
+
+    subgraph compose["🐳 Docker Compose"]
+        direction LR
+        web["<b>web</b><br/>nginx sin privilegios<br/>:8080"]
+        api["<b>api</b><br/>Node.js 24 · Express 5<br/>:3000"]
+        valkey[("<b>valkey</b><br/>caché · partidas · ranking<br/>:6379")]
+        volumen[("💾 volumen<br/>valkey-data")]
+    end
+
+    pokeapi["☁️ PokeAPI<br/>pokeapi.co"]
+
+    usuario -- "HTTP :8080" --> web
+    web -- "/api y /health" --> api
+    api -- "RESP" --> valkey
+    valkey -. "AOF" .-> volumen
+    api -- "HTTPS, solo si no está en caché" --> pokeapi
+```
+
+### Una ronda por dentro
+
+El diagrama muestra por qué el navegador **nunca** conoce la respuesta antes de responder: el Pokémon elegido queda guardado en Valkey y la imagen sale de la API, no de PokeAPI.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor N as Navegador
+    participant A as api
+    participant V as valkey
+    participant P as PokeAPI
+
+    N->>A: GET /api/partidas/:id/ronda
+    A->>V: ¿Pokémon en caché?
+    alt no está en caché
+        A->>P: GET /pokemon/:n
+        A->>V: guardar 24 h
+    end
+    A->>V: guardar ronda pendiente (atómico)
+    A-->>N: { imagen: "/api/.../imagen", opciones: [4 nombres] }
+    N->>A: GET /api/partidas/:id/imagen
+    A-->>N: PNG (sin el número del Pokémon en la URL)
+    N->>A: POST /api/partidas/:id/respuesta { opcion }
+    A->>V: responder solo si la ronda sigue pendiente (Lua)
+    A-->>N: { correcta, puntos, pokemon, ... }
 ```
 
 | Servicio | Imagen | Qué hace |
@@ -297,8 +341,11 @@ api/            API en Node.js
   valkey.js       cliente de Valkey
 web/            frontend estático (HTML, CSS y JS sin frameworks) y nginx
 docs/           contrato de la API y modelo de datos en Valkey
+  img/            capturas del README
 prompts/        los 5 prompts del laboratorio
-scripts/        prueba de la API con curl
+scripts/
+  probar-api.sh   prueba de la API con curl
+  capturas/       genera las capturas del README con Playwright
 compose.yaml    los tres servicios
 ```
 
@@ -330,6 +377,18 @@ docker compose restart api        # reiniciar un servicio
 docker compose down               # apagar (conserva el ranking)
 docker compose down -v            # apagar y borrar los datos
 ```
+
+### Regenerar las capturas
+
+Las imágenes de [docs/img/](docs/img/) las genera [scripts/capturas/capturas.js](scripts/capturas/capturas.js): abre un Chromium headless, juega una partida y guarda una captura de cada pantalla. Con el stack levantado:
+
+```bash
+cd scripts/capturas
+npm install && npx playwright install chromium
+node capturas.js                 # o: node capturas.js http://otra-url:8080
+```
+
+Las capturas muestran el ranking y el historial que haya en ese momento en Valkey, así que conviene generarlas con datos de ejemplo. Playwright se usa solo para esto: no es una dependencia de la API ni del frontend.
 
 ## Créditos
 

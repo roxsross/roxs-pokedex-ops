@@ -1,0 +1,12 @@
+{
+  "name": "pokedex-capturas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Genera las capturas del README jugando una partida en un Chromium headless",
+  "scripts": {
+    "capturas": "node capturas.js"
+  },
+  "dependencies": {
+    "playwright": "^1.56.0"
+  }
+}
