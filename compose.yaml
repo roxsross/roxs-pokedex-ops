@@ -1,0 +1,41 @@
+name: pokedex
+
+services:
+  web:
+    build: ./web
+    image: pokedex-web
+    ports:
+      - "8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api:
+    build: ./api
+    image: pokedex-api
+    environment:
+      VALKEY_URL: redis://valkey:6379
+      POKEAPI_URL: https://pokeapi.co/api/v2
+    ports:
+      # Solo accesible desde la propia máquina, para probar la API con curl
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      valkey:
+        condition: service_healthy
+    restart: unless-stopped
+
+  valkey:
+    image: valkey/valkey:8-alpine
+    command: ["valkey-server", "--appendonly", "yes"]
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  valkey-data:
